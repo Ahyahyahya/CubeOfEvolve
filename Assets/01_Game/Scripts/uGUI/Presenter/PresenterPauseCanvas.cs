@@ -1,17 +1,12 @@
-// AT
-// ポーズ画面での処理を実行する。
-
 using Assets.IGC2025.Scripts.GameManagers;
 using AT.uGUI;
 using R3;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Assets.IGC2025.Scripts.Presenter
 {
-    public class PresenterPauseCanvas : MonoBehaviour
+    public class PresenterPauseCanvas : MonoBehaviour, IPresenter
     {
-        // -----
         // -----SerializeField
         [Header("Models")]
         [SerializeField] private GameManager gameManager;
@@ -19,44 +14,48 @@ namespace Assets.IGC2025.Scripts.Presenter
         [Header("Views")]
         [SerializeField] private Canvas canvas;
 
+        // -----Field
+        public bool IsInitialized { get; private set; } = false;
+
         // -----UnityMessage
         private void Start()
         {
-            if (!Initialize()) enabled = false;
+            if (canvas != null) canvas.enabled = false; // 初期は閉
         }
 
-        // -----private
-        private bool Initialize()
+        // -----PublicMethods
+        public void Initialize()
         {
-            // 参照確認
-            if (gameManager == null)
-            {
-                Debug.LogWarning($"PresenterPauseCanvas: 参照切れのため代入");
-                gameManager = GameManager.Instance;
-            }
+            if (IsInitialized) return;
 
-            // 依存チェック
+            if (gameManager == null) gameManager = GameManager.Instance;
+
             if (gameManager == null || canvas == null)
             {
-                Debug.LogWarning($"PresenterPauseCanvas: 依存が不足のため処理中止");
-                return false;
+                Debug.LogWarning($"{nameof(PresenterPauseCanvas)}: 依存が不足のため初期化を中止します。", this);
+                return;
             }
 
             var canvasCtrl = canvas.GetComponent<CanvasCtrl>();
+            if (canvasCtrl == null)
+            {
+                Debug.LogWarning($"{nameof(PresenterPauseCanvas)}: CanvasCtrl が見つかりません。", this);
+                return;
+            }
 
             gameManager.CurrentGameState
                 .Skip(1)
-                .Subscribe(
-                x =>
+                .Subscribe(x =>
                 {
-                    if (x == GameState.PAUSE)
-                        canvasCtrl.OnOpenCanvas();
-                    else
-                        canvasCtrl.OnCloseCanvas();
+                    if (x == GameState.PAUSE) canvasCtrl.OnOpenCanvas();
+                    else canvasCtrl.OnCloseCanvas();
                 })
                 .AddTo(this);
 
-            return true;
+            IsInitialized = true;
+#if UNITY_EDITOR
+            Debug.Log($"{nameof(PresenterPauseCanvas)} initialized.", this);
+#endif
         }
 
     }
