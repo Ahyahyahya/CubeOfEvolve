@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     // ---------- Singleton
     public static GameManager Instance { get; private set; }
 
-    // ---------- RP
+    // ---------- ReactiveProperty
     private readonly ReactiveProperty<GameState> _currentGameState = new(GameState.INITIALIZE);
     public ReadOnlyReactiveProperty<GameState> CurrentGameState => _currentGameState;
 
@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
 
     // #ボスが撃破されたときにトランスフォームを格納しておく変数
     public Transform BossTransform { get; set; }
-    
+
     // ---------- Property
     public TimeManager TimeManager => _timeManager;
     public SceneLoader SceneLoader => _sceneLoader;

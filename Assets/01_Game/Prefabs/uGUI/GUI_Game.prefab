@@ -17198,7 +17198,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0.019607844, g: 0, b: 0, a: 1}
   Color2: {r: 0.61635214, g: 0.61635214, b: 0.61635214, a: 1}
-  Angle: 2674687.2
+  Angle: 6777222.5
   _isAnime: 1
   _rotationSpeed: 300
 --- !u!1 &2966871649232209619
@@ -17518,7 +17518,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1099330696995691056}
   m_HandleRect: {fileID: 917455911146631894}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -20523,6 +20523,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3712608578955877450}
   - component: {fileID: 508867764050363434}
+  - component: {fileID: 7188780871789563619}
   m_Layer: 0
   m_Name: Presenter_Title
   m_TagString: Untagged
@@ -20566,6 +20567,26 @@ MonoBehaviour:
   _resetEvent: {fileID: 11400000, guid: 68d1bab3482c99b4291323e2b5042384, type: 2}
   _quitButton: {fileID: 5456433055738455484}
   _quitEvent: {fileID: 11400000, guid: 0a01468fe9a3e2f429770b772ae0eb19, type: 2}
+--- !u!114 &7188780871789563619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3417060410280894121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1980ca1912da87459864f1f71d1b5ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  presenterBehaviours:
+  - {fileID: 508867764050363434}
+  - {fileID: 8481168654458084443}
+  - {fileID: 2786226350070758631}
+  - {fileID: 4697551089716465153}
+  - {fileID: 2092433457012853231}
+  - {fileID: 3080310223312133455}
+  waitFrames: 10
 --- !u!1 &3434339789024106944
 GameObject:
   m_ObjectHideFlags: 0
@@ -23725,7 +23746,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.00021208574}
+  m_AnchoredPosition: {x: 0, y: 0.000039246588}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1030651825821008766
@@ -37246,7 +37267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0.15686275, g: 0.14117648, b: 0.14117648, a: 1}
   Color2: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-  Angle: 929819.44
+  Angle: 3368009.5
   _isAnime: 1
   _rotationSpeed: 180
 --- !u!1 &5585908736158749580
@@ -42938,7 +42959,7 @@ RectTransform:
   m_GameObject: {fileID: 6323794804740685738}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2602213812472484587}
@@ -47165,7 +47186,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8498157983790470093}
   m_HandleRect: {fileID: 3231528483057716651}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -48544,7 +48565,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 305578.84
+  Angle: 4408112.5
   _isAnime: 1
   _rotationSpeed: 300
 --- !u!1 &7272389834020847404
@@ -49898,7 +49919,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0.15686275, g: 0.14117648, b: 0.14117648, a: 1}
   Color2: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-  Angle: 926271.3
+  Angle: 3364461.5
   _isAnime: 1
   _rotationSpeed: 180
 --- !u!1 &7717194280681923968
@@ -53796,7 +53817,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.00068729155}
+  m_AnchoredPosition: {x: 0, y: 0.000018370753}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &249048786212175310
@@ -56519,7 +56540,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8714392412142635637}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_RenderMode: 0
   m_Camera: {fileID: 0}
@@ -60533,7 +60554,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 536099.25
+  Angle: 2558205.8
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!1 &6157882955798168294 stripped
@@ -62403,7 +62424,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 389453.94
+  Angle: 2411560.2
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!1001 &1930682642832775210
@@ -62917,7 +62938,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 456874.94
+  Angle: 2478981.5
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!1001 &2339255624764757737
@@ -63863,7 +63884,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 466964.75
+  Angle: 2489071.5
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!224 &9049123938771851993 stripped
@@ -64132,7 +64153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 625211.1
+  Angle: 2647317.8
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!224 &9036192598030792282 stripped
@@ -67396,7 +67417,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 523845.12
+  Angle: 2545951.8
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!1001 &4733670077103505987
@@ -67995,7 +68016,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 540663.5
+  Angle: 2562770
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!1 &1598265653808136447 stripped
@@ -69070,7 +69091,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 389450.5
+  Angle: 2411556.8
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!114 &2084951087912642363 stripped
@@ -70164,7 +70185,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 389643.28
+  Angle: 2411749.5
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!1001 &5960330920994847885
@@ -70405,7 +70426,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 623392.5
+  Angle: 2645499
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!1001 &5991054640800426132
@@ -73351,7 +73372,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 508728.94
+  Angle: 2530835.5
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!1 &4124344560403777511 stripped
@@ -73575,7 +73596,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0.015686275, g: 0, b: 0, a: 1}
   Color2: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 1}
-  Angle: 2144883
+  Angle: 4583074.5
   _isAnime: 1
   _rotationSpeed: 180
 --- !u!224 &4554957705807384150 stripped
@@ -73745,7 +73766,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6774652464955240719, guid: ffb2de42c0c9942e88ce7aab6979e17b, type: 3}
       propertyPath: Angle
-      value: 121.2294
+      value: 2020428.6
       objectReference: {fileID: 0}
     - target: {fileID: 6774652464955240719, guid: ffb2de42c0c9942e88ce7aab6979e17b, type: 3}
       propertyPath: Color1.b
@@ -75262,7 +75283,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 627563.56
+  Angle: 2649670.2
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!1001 &8741656999104311479
@@ -75951,7 +75972,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: e435c6437f404934d848b85c475d7d94, type: 2}
     - target: {fileID: 8693481879869899831, guid: 91cd2c6913c573d4f9853686fa513386, type: 3}
       propertyPath: Angle
-      value: 2674538.5
+      value: 6777073.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -76212,7 +76233,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Color1: {r: 0, g: 0.61968195, b: 0.6320754, a: 1}
   Color2: {r: 0, g: 0.4357442, b: 0.8352941, a: 1}
-  Angle: 624085.94
+  Angle: 2646192.5
   _isAnime: 1
   _rotationSpeed: 150
 --- !u!1001 &8981054972008349762
