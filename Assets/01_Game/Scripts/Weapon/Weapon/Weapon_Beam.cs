@@ -1,12 +1,16 @@
 using Assets.AT;
 using UnityEngine;
 
-public class Weapon_Turret : WeaponBase
+public class Weapon_Beam : WeaponBase
 {
     // ---------------------------- SerializeField
     [Header("’e")]
     [SerializeField] private Transform _bulletSpawnPos;
-    [SerializeField] private Bullet_Linear _bulletPrefab;
+    [SerializeField] private Bullet_Beam _bulletPrefab;
+    [SerializeField] private float _distance;
+    [SerializeField] private float _radius;
+    [SerializeField] private float _destroySecond;
+    [SerializeField] private float _attackInterval;
 
     // ---------------------------- OverrideMethod
     protected override void Attack()
@@ -16,15 +20,20 @@ public class Weapon_Turret : WeaponBase
         Quaternion shootRotation = Quaternion.LookRotation(shootDir);
 
         var bullet = Instantiate(
-            _bulletPrefab,
-            _bulletSpawnPos.position,
-            shootRotation);
+            _bulletPrefab);
+
+        bullet.transform.SetParent(_bulletSpawnPos.transform, false);
+        bullet.transform.localPosition = Vector3.zero;
+        bullet.transform.localRotation = Quaternion.identity;
 
         bullet.Initialize(
             _targetLayerMask,
             _currentAttack,
-            _data.ModuleState.BulletSpeed,
-            shootDir);
+            _distance,
+            _radius,
+            shootDir,
+            _destroySecond,
+            _attackInterval);
 
         GameSoundManager.Instance.PlaySFX(_fireSEName, transform, _fireSEName);
     }
