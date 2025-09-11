@@ -240,9 +240,7 @@ public class GameManager : MonoBehaviour
     private async UniTask SetupTitleAsync(CancellationToken token)
     {
         _canvasCtrlManager = CanvasCtrlManager.Instance;
-        //_cameraCtrlManager = CameraCtrlManager.Instance;
         _canvasCtrlManager.ShowOnlyCanvas("TitleView");
-        //_cameraCtrlManager.ChangeCamera("TitleDemoCamera");
         await UniTask.CompletedTask;
     }
 
@@ -263,7 +261,6 @@ public class GameManager : MonoBehaviour
     private async UniTask SetupBuildAsync(CancellationToken token)
     {
         _canvasCtrlManager.GetCanvas("BuildView")?.OnOpenCanvas();
-        //_cameraCtrlManager.ChangeCamera("Build Camera");
         await UniTask.CompletedTask;
     }
 
@@ -276,7 +273,6 @@ public class GameManager : MonoBehaviour
     private async UniTask SetupBattleAsync(CancellationToken token)
     {
         _canvasCtrlManager.GetCanvas("GameView")?.OnOpenCanvas();
-        //_cameraCtrlManager.ChangeCamera("Player Camera");
         await UniTask.CompletedTask;
     }
 

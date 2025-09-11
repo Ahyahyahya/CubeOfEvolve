@@ -74,9 +74,7 @@ namespace Assets.IGC2025.Scripts.Presenter
             }
 
             IsInitialized = true;
-#if UNITY_EDITOR
-            Debug.Log($"{nameof(PresenterResultCanvas)} initialized.", this);
-#endif
+
         }
 
         #region ModelToView

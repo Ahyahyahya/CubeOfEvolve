@@ -78,9 +78,6 @@ namespace Assets.IGC2025.Scripts.Presenter
                 .AddTo(this);
 
             IsInitialized = true;
-#if UNITY_EDITOR
-            Debug.Log($"{nameof(PresenterGameCanvas)} initialized.", this);
-#endif
         }
     }
 }
