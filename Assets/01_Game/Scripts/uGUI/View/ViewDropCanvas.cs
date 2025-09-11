@@ -1,148 +1,368 @@
-using App.BaseSystem.DataStores.ScriptableObjects.Modules;
+﻿using App.BaseSystem.DataStores.ScriptableObjects.Modules;
 using App.GameSystem.Modules;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using R3;
 using R3.Triggers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Assets.IGC2025.Scripts.View
 {
     /// <summary>
-    /// ���W���[���I����ʁi�ő�3���j�BPrefab�x�[�X�Ő������A�I���܂��̓����_���\�����\�B
+    /// モジュール選択画面の View。
+    /// - 表示候補の生成、初期見た目の設定
+    /// - 画面の開閉アニメーション
+    /// - クリック/ホバーの通知イベント
+    /// Presenter からは Display → Prepare → PlayOpen の順で呼ばれる想定。
     /// </summary>
-    public class ViewDropCanvas : MonoBehaviour
+    public sealed class ViewDropCanvas : MonoBehaviour
     {
-        // ----- SerializedField
+        // -----SerializeField
+        [Header("参照")]
         [SerializeField] private GameObject _moduleItemPrefab;
         [SerializeField] private Transform _contentParent;
 
-        // ----- Events
-        public Subject<int> OnModuleSelected { get; private set; } = new Subject<int>();
-        public Subject<int> OnModuleHovered { get; private set; } = new Subject<int>();
+        [Header("表示設定")]
+        [SerializeField, Tooltip("表示する選択肢の上限")] private int _maxOptions = 3;
 
-        // ----- Internal State
-        private List<GameObject> _instantiatedItems = new List<GameObject>();
-        private Dictionary<int, Button> _selectionButtons = new Dictionary<int, Button>();
-        private List<int> _currentDisplayedModuleIds = new List<int>();
-        private CompositeDisposable _disposables = new CompositeDisposable();
+        [Header("アニメ/キャンバス & カード")]
+        [SerializeField] private CanvasGroup _canvasGroup;
+        [SerializeField, Range(0.05f, 1f)] private float _openDuration = 0.25f;
+        [SerializeField, Range(0.00f, 0.30f)] private float _stagger = 0.06f;
+        [SerializeField, Range(0.05f, 0.60f)] private float _closeDuration = 0.18f;
+        [SerializeField, Tooltip("カード初期拡大率")] private Vector3 _spawnScale = new(0.9f, 0.9f, 0.9f);
 
-        [SerializeField] private int _maxOptions = 3;
+        [Header("アニメ/背景")]
+        [SerializeField, Tooltip("Yスケールを 0→Overshoot→1 にする背景")] private RectTransform _background;
+        [SerializeField, Tooltip("背景 0→Overshoot の時間")] private float _bgOpenDuration = 0.25f;
+        [SerializeField, Tooltip("背景 Overshoot→1 の時間(0でスキップ)")] private float _bgSettleDuration = 0.12f;
+        [SerializeField, Tooltip("背景のオーバーシュート量(Y)")] private float _bgOvershootY = 1.5f;
 
+        [Header("アニメ/バナー")]
+        [SerializeField, Tooltip("左からスライドインする帯")] private RectTransform _banner;
+        [SerializeField, Tooltip("画面外へ出す余白(px)")] private float _bannerExtraMargin = 640f;
+
+        // -----Events
+        public Subject<int> OnModuleSelected { get; private set; } = new();
+        public Subject<int> OnModuleHovered { get; private set; } = new();
+
+        // -----Runtime
+        private readonly List<GameObject> _instantiatedItems = new();
+        private readonly Dictionary<int, Button> _selectionButtons = new();
+        private readonly List<int> _currentDisplayedModuleIds = new();
+        private readonly CompositeDisposable _disposables = new();
+
+        // -----Field
+        // Tween handles
+        private Sequence _openSeq;
+        private Tween _closeTween;
+
+        // Banner cache
+        private Vector2 _bannerInitialPos;
+        private float _bannerOffscreenX;
+        private bool _bannerCached;
+
+        // -----UnityMessage
         private void OnDestroy()
         {
+            OnModuleSelected?.Dispose();
+            OnModuleHovered?.Dispose();
             _disposables.Dispose();
-            OnModuleSelected.Dispose();
-            OnModuleHovered.Dispose();
+            _openSeq?.Kill();
+            _closeTween?.Kill();
         }
 
-        /// <summary>
-        /// �w�肳�ꂽID�̃��W���[����I�o�E�\������i-1�̓����_���⊮�j�B
-        /// </summary>
-        /// <param name="moduleIds">�I�o���������W���[��ID�i-1�̓����_���⊮�j�B</param>
-        /// <param name="candidatePool">�����_���⊮�Ɏg������f�[�^�B</param>
-        /// <param name="dataStore">�}�X�^�[�f�[�^�擾�p�B</param>
-        public void DisplayModulesByIdOrRandom(List<int> moduleIds, List<RuntimeModuleData> candidatePool, ModuleDataStore dataStore)
+        // -----publicMethod
+
+        /// <summary>指定ID/ランダム補完でカードを生成して並べる。</summary>
+        public void DisplayModulesByIdOrRandom(
+            List<int> moduleIds,
+            List<RuntimeModuleData> candidatePool,
+            ModuleDataStore dataStore)
         {
-            Cleanup();
+            ClearItems();
 
-            var randomPool = candidatePool.OrderBy(_ => Random.value).ToList();
+            var randomPool = candidatePool.ToList();
+            ShuffleInPlace(randomPool); // 高速シャッフル
+
             int randomIndex = 0;
+            int count = Mathf.Min(_maxOptions, moduleIds.Count);
 
-            for (int i = 0; i < Mathf.Min(_maxOptions, moduleIds.Count); i++)
+            for (int i = 0; i < count; i++)
             {
-                int requestedId = moduleIds[i];
-                if (TryGetModuleData(requestedId, out var moduleId, out var master, out var runtime))
+                int reqId = moduleIds[i];
+                if (TryResolveModule(reqId, randomPool, ref randomIndex, candidatePool, dataStore,
+                                     out int id, out ModuleData master, out RuntimeModuleData runtime))
                 {
-                    CreateModuleUI(moduleId, master, runtime);
+                    CreateItem(id, master, runtime);
                 }
             }
-
-            // -----���[�J���֐���`
-
-            void Cleanup()
-            {
-                foreach (var obj in _instantiatedItems)
-                    Destroy(obj);
-
-                _instantiatedItems.Clear();
-                _selectionButtons.Clear();
-                _currentDisplayedModuleIds.Clear();
-                _disposables.Clear();
-            }
-
-            bool TryGetModuleData(int idInput, out int moduleId, out ModuleData master, out RuntimeModuleData runtime)
-            {
-                moduleId = -1;
-                master = null;
-                runtime = null;
-
-                if (idInput == -1)
-                {
-                    while (randomIndex < randomPool.Count && _currentDisplayedModuleIds.Contains(randomPool[randomIndex].Id))
-                        randomIndex++;
-
-                    if (randomIndex >= randomPool.Count)
-                    {
-                        Debug.LogWarning("ViewDropCanvas: �����_����₪�s�����Ă��܂��B");
-                        return false;
-                    }
-
-                    runtime = randomPool[randomIndex];
-                    master = dataStore.FindWithId(runtime.Id);
-                    moduleId = runtime.Id;
-                }
-                else
-                {
-                    runtime = candidatePool.FirstOrDefault(c => c.Id == idInput);
-                    master = dataStore.FindWithId(idInput);
-                    moduleId = idInput;
-
-                    if (runtime == null || master == null)
-                    {
-                        Debug.LogWarning($"ViewDropCanvas: �w��ID {idInput} �ɊY������f�[�^��������܂���B�X�L�b�v�B");
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            void CreateModuleUI(int moduleId, ModuleData master, RuntimeModuleData runtime)
-            {
-                GameObject item = Instantiate(_moduleItemPrefab, _contentParent);
-                _instantiatedItems.Add(item);
-
-                ViewInfo view = item.GetComponent<ViewInfo>();
-                Button button = item.GetComponentInChildren<Button>();
-
-                if (view == null || button == null)
-                {
-                    Debug.LogError($"ViewDropCanvas: Prefab�ɕK�v�ȃR���|�[�l���g������܂���iViewInfo/Button�j�BID: {moduleId}");
-                    return;
-                }
-
-                view.SetInfo(master, runtime);
-                _selectionButtons[moduleId] = button;
-                _currentDisplayedModuleIds.Add(moduleId);
-
-                Transform indicatorTransform = item.transform.Find("LevelZeroIndicator");
-                if (indicatorTransform != null)
-                {
-                    GameObject indicator = indicatorTransform.gameObject;
-                    indicator.SetActive(runtime.CurrentLevelValue == 0);
-                }
-
-                button.OnClickAsObservable()
-                    .Subscribe(_ => OnModuleSelected.OnNext(moduleId))
-                    .AddTo(_disposables);
-
-                button.OnPointerEnterAsObservable()
-                    .Subscribe(_ => OnModuleHovered.OnNext(moduleId))
-                    .AddTo(_disposables);
-            }
-
         }
+
+        /// <summary>開アニメ前の状態へ初期化（Canvas/Banner/Card）。</summary>
+        public void PrepareInitialStatesForOpen()
+        {
+            InitCanvasClosed();
+
+            if (_banner)
+            {
+                if (!_bannerCached)
+                {
+                    _bannerInitialPos = _banner.anchoredPosition;
+                    _bannerCached = true;
+                }
+                _bannerOffscreenX = CalcBannerOffscreenX(_banner, _bannerExtraMargin);
+                _banner.anchoredPosition = new Vector2(_bannerOffscreenX, _bannerInitialPos.y);
+            }
+
+            foreach (var go in _instantiatedItems)
+            {
+                var rt = go.transform as RectTransform;
+                if (rt) rt.localScale = _spawnScale;
+                EnsureCanvasGroup(go).alpha = 0f;
+            }
+        }
+
+        /// <summary>画面を開く（Canvas → 背景/バナー → カード）。</summary>
+        public async UniTask PlayOpenAsync(CancellationToken ct = default)
+        {
+            KillTweens();
+
+            if (!_canvasGroup) return;
+            InitCanvasClosed();
+
+            _openSeq = BuildOpenSequence();
+            await _openSeq.AsyncWaitForCompletion();
+
+            if (ct.IsCancellationRequested) return;
+            _canvasGroup.interactable = true;
+            _canvasGroup.blocksRaycasts = true;
+        }
+
+        /// <summary>画面を閉じる（Canvas フェード + バナー退場）。</summary>
+        public async UniTask PlayCloseAsync()
+        {
+            _openSeq?.Kill();
+            if (!_canvasGroup) return;
+
+            _canvasGroup.interactable = false;
+            _canvasGroup.blocksRaycasts = false;
+
+            _closeTween?.Kill();
+            _closeTween = BuildCloseSequence();
+
+            await _closeTween.AsyncWaitForCompletion();
+        }
+
+        // -----PrivateMethod
+        // Build Timeline
+
+        /// <summary>開アニメの全体タイムラインを構築。</summary>
+        private Sequence BuildOpenSequence()
+        {
+            var seq = DOTween.Sequence();
+
+            // 1) Canvas
+            seq.Append(_canvasGroup.DOFade(1f, _openDuration).SetEase(Ease.OutSine));
+
+            // 2) 背景&バナー（同時ブロック）
+            var block = DOTween.Sequence();
+            if (_background)
+            {
+                block.Join(_background.DOScaleY(_bgOvershootY, _bgOpenDuration).SetEase(Ease.OutBack));
+                //if (_bgSettleDuration > 0f)
+                //    block.Append(_background.DOScaleY(1f, _bgSettleDuration).SetEase(Ease.OutCubic));
+            }
+            if (_banner)
+            {
+                block.Join(_banner.DOAnchorPosX(_bannerInitialPos.x, _bgOpenDuration)
+                                  .SetEase(Ease.OutCubic)
+                                  .SetLink(_banner.gameObject));
+            }
+            seq.Append(block);
+
+            // 3) カード（等間隔で順に）
+            seq.Append(BuildCardsSequence());
+
+            return seq;
+        }
+
+        /// <summary>閉アニメのタイムラインを構築。</summary>
+        private Sequence BuildCloseSequence()
+        {
+            var close = DOTween.Sequence();
+            close.Join(_canvasGroup.DOFade(0f, _closeDuration).SetEase(Ease.InSine));
+
+            if (_banner)
+            {
+                close.Join(_banner.DOAnchorPosX(_bannerOffscreenX, _closeDuration)
+                                  .SetEase(Ease.InCubic)
+                                  .SetLink(_banner.gameObject));
+            }
+            return close;
+        }
+
+        /// <summary>カード入場（1枚=1サブSequenceを積む方式で等間隔を保証）。</summary>
+        private Sequence BuildCardsSequence()
+        {
+            var cards = DOTween.Sequence();
+
+            for (int i = 0; i < _instantiatedItems.Count; i++)
+            {
+                var go = _instantiatedItems[i];
+                var rt = go.transform as RectTransform;
+                if (!rt) continue;
+
+                var cg = EnsureCanvasGroup(go);
+
+                var one = DOTween.Sequence(); // 1枚分
+                one.Join(rt.DOScale(1f, _openDuration).SetEase(Ease.OutBack).SetLink(go));
+                one.Join(cg.DOFade(1f, _openDuration).SetLink(go));
+
+                cards.Append(one);
+                if (i < _instantiatedItems.Count - 1) cards.AppendInterval(_stagger);
+            }
+
+            return cards;
+        }
+
+        // -----PrivateMethod
+        // Items
+
+        /// <summary>候補解決（指定ID or ランダム補完）。</summary>
+        private static bool TryResolveModule(
+            int requestId,
+            IList<RuntimeModuleData> randomPool,
+            ref int randomIndex,
+            List<RuntimeModuleData> candidatePool,
+            ModuleDataStore dataStore,
+            out int moduleId,
+            out ModuleData master,
+            out RuntimeModuleData runtime)
+        {
+            moduleId = -1; master = null; runtime = null;
+
+            if (requestId == -1)
+            {
+                // 既出IDを避けつつランダム補完
+                while (randomIndex < randomPool.Count)
+                {
+                    var r = randomPool[randomIndex++];
+                    runtime = r;
+                    master = dataStore.FindWithId(r.Id);
+                    moduleId = r.Id;
+                    if (master != null) return true;
+                }
+                Debug.LogWarning($"{nameof(ViewDropCanvas)}: ランダム候補が不足しています。");
+                return false;
+            }
+
+            runtime = candidatePool.FirstOrDefault(c => c.Id == requestId);
+            master = dataStore.FindWithId(requestId);
+            moduleId = requestId;
+
+            if (runtime == null || master == null)
+            {
+                Debug.LogWarning($"{nameof(ViewDropCanvas)}: 指定ID {requestId} のデータが見つかりません。スキップ。");
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>カード1枚を生成し、見た目とイベントをセット。</summary>
+        private void CreateItem(int moduleId, ModuleData master, RuntimeModuleData runtime)
+        {
+            var item = Instantiate(_moduleItemPrefab, _contentParent);
+            _instantiatedItems.Add(item);
+
+            var view = item.GetComponent<ViewInfo>();
+            var button = item.GetComponentInChildren<Button>();
+
+            if (!view || !button)
+            {
+                Debug.LogError($"{nameof(ViewDropCanvas)}: Prefabに ViewInfo / Button がありません。ID:{moduleId}");
+                return;
+            }
+
+            view.SetInfo(master, runtime);
+            _selectionButtons[moduleId] = button;
+
+            var indicator = item.transform.Find("LevelZeroIndicator");
+            if (indicator) indicator.gameObject.SetActive(runtime.CurrentLevelValue == 0);
+
+            InitItemVisual(item);
+            BindItemEvents(moduleId, button);
+
+            _currentDisplayedModuleIds.Add(moduleId);
+        }
+
+        /// <summary>アイテムの初期見た目（アニメ前）。</summary>
+        private void InitItemVisual(GameObject item)
+        {
+            if (item.transform is RectTransform rt) rt.localScale = _spawnScale;
+            EnsureCanvasGroup(item).alpha = 0f;
+        }
+
+        /// <summary>クリック/ホバーのイベント購読。</summary>
+        private void BindItemEvents(int moduleId, Button button)
+        {
+            button.OnClickAsObservable()
+                  .Subscribe(_ => OnModuleSelected.OnNext(moduleId))
+                  .AddTo(_disposables);
+
+            button.OnPointerEnterAsObservable()
+                  .Subscribe(_ => OnModuleHovered.OnNext(moduleId))
+                  .AddTo(_disposables);
+        }
+
+        // Utilities
+
+        private void ClearItems()
+        {
+            foreach (var obj in _instantiatedItems) Destroy(obj);
+            _instantiatedItems.Clear();
+            _selectionButtons.Clear();
+            _currentDisplayedModuleIds.Clear();
+            _disposables.Clear();
+        }
+
+        private void InitCanvasClosed()
+        {
+            if (!_canvasGroup) return;
+            _canvasGroup.alpha = 0f;
+            _canvasGroup.interactable = false;
+            _canvasGroup.blocksRaycasts = false;
+        }
+
+        private void KillTweens()
+        {
+            _openSeq?.Kill(); _openSeq = null;
+            _closeTween?.Kill(); _closeTween = null;
+        }
+
+        private static void ShuffleInPlace<T>(IList<T> list)
+        {
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                (list[i], list[j]) = (list[j], list[i]);
+            }
+        }
+
+        private float CalcBannerOffscreenX(RectTransform banner, float extraMargin)
+        {
+            var parentRT = banner.parent as RectTransform;
+            float parentW = parentRT ? parentRT.rect.width : Screen.width;
+            float bannerW = banner.rect.width;
+            return _bannerInitialPos.x - (parentW + bannerW) * 0.5f - extraMargin;
+        }
+
+        private static CanvasGroup EnsureCanvasGroup(GameObject go)
+            => go.TryGetComponent(out CanvasGroup cg) ? cg : go.AddComponent<CanvasGroup>();
     }
 }

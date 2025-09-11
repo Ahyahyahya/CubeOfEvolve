@@ -2,12 +2,12 @@ using App.BaseSystem.DataStores.ScriptableObjects.Modules;
 using App.GameSystem.Modules;
 using Assets.IGC2025.Scripts.View;
 using AT.uGUI;
+using Cysharp.Threading.Tasks;
 using Game.Utils;
 using R3;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Assets.IGC2025.Scripts.Presenter
@@ -37,18 +37,7 @@ namespace Assets.IGC2025.Scripts.Presenter
         private List<int> _candidateModuleIds = new List<int>();
 
         // ----- UnityMessage
-        private void Start()
-        {
-            if (_dropView != null)
-            {
-                _dropView.OnModuleSelected
-                    .Subscribe(x => HandleModuleSelected(x))
-                    .AddTo(this); // R3 の AddTo(CompositeDisposable) を使用。
-                _dropView.OnModuleHovered
-                    .Subscribe(x => HandleModuleHovered(x))
-                    .AddTo(this);
-            }
-        }
+
         private void Awake()
         {
             if (_runtimeModuleManager == null) _runtimeModuleManager = RuntimeModuleManager.Instance;
@@ -75,9 +64,7 @@ namespace Assets.IGC2025.Scripts.Presenter
                 .AddTo(this);
 
             IsInitialized = true;
-#if UNITY_EDITOR
-            Debug.Log($"{nameof(PresenterDropCanvas)} initialized.", this);
-#endif
+
         }
 
 
@@ -86,7 +73,7 @@ namespace Assets.IGC2025.Scripts.Presenter
         /// <summary>
         /// ドロップ選択UIを表示する準備をし、Viewに表示を依頼します。
         /// </summary>
-        public void PrepareAndShowDropUI()
+        public async void PrepareAndShowDropUI()
         {
             if (_runtimeModuleManager == null || _moduleDataStore == null || _dropView == null)
             {
@@ -104,13 +91,9 @@ namespace Assets.IGC2025.Scripts.Presenter
 
             if (displayIds == null || displayIds.Count == 0)
             {
-                // すべて最大レベル等で選択肢が出せない場合のフォールバック
                 var player = FindFirstObjectByType<PlayerCore>();
-                if (player != null)
-                    player.ReceiveExp(30);
-                else
-                    Debug.LogWarning($"{nameof(PresenterDropCanvas)}: PlayerCore が見つからず、代替報酬を付与できませんでした。", this);
-
+                if (player != null) player.ReceiveExp(30);
+                else Debug.LogWarning($"{nameof(PresenterDropCanvas)}: PlayerCore が見つからず、代替報酬を付与できませんでした。", this);
                 return;
             }
 
@@ -118,6 +101,10 @@ namespace Assets.IGC2025.Scripts.Presenter
 
             var canvasCtrl = _dropView.GetComponent<CanvasCtrl>();
             if (canvasCtrl != null) canvasCtrl.OnOpenCanvas();
+
+            // 開アニメ開始
+            _dropView.PrepareInitialStatesForOpen();
+            await _dropView.PlayOpenAsync();
         }
 
         #endregion
@@ -130,15 +117,18 @@ namespace Assets.IGC2025.Scripts.Presenter
         /// Viewからのイベント（R3で購読）によって呼び出されます。
         /// </summary>
         /// <param name="selectedModuleId">選択されたモジュールのID。</param>
-        private void HandleModuleSelected(int selectedModuleId)
+        private async void HandleModuleSelected(int selectedModuleId)
         {
             if (_dropView == null) return;
 
             if (selectedModuleId != -1 && _runtimeModuleManager != null)
                 _runtimeModuleManager.LevelUpModule(selectedModuleId);
 
+            // ★ 追加：閉アニメ → 閉じる
+            await _dropView.PlayCloseAsync();
+
             var canvasCtrl = _dropView.gameObject.GetComponent<CanvasCtrl>();
-            if (canvasCtrl != null) canvasCtrl.OnCloseCanvas();
+            if (canvasCtrl != null) canvasCtrl.OnCloseCanvas(); // 既存の閉処理:contentReference[oaicite:7]{index=7}
         }
 
         /// <summary>

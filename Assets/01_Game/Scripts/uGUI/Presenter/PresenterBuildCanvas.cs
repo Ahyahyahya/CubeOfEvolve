@@ -224,9 +224,7 @@ namespace Assets.IGC2025.Scripts.Presenter
 
             // Š®—¹
             IsInitialized = true;
-#if UNITY_EDITOR
-            Debug.Log($"{nameof(PresenterBuildCanvas)} initialized.", this);
-#endif
+
         }
     }
 }
