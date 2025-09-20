@@ -3,6 +3,7 @@ using Assets.IGC2025.Scripts.GameManagers;
 using AT.uGUI;
 using ObservableCollections;
 using R3;
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -59,11 +60,13 @@ public class PlayerMover : BasePlayerComponent
         // ポーズの開閉処理
         InputEventProvider.Pause
             .Where(x => x)
+            .ThrottleFirst(TimeSpan.FromSeconds(0.35f)) // ポーズのアニメーション時間分のインターバル
             .Subscribe(x =>
             {
                 // ゲーム中のみポーズを開けるように
                 if (gameManager.CurrentGameState.CurrentValue == GameState.BATTLE
-                || gameManager.CurrentGameState.CurrentValue == GameState.BUILD)
+                || gameManager.CurrentGameState.CurrentValue == GameState.BUILD
+                || gameManager.CurrentGameState.CurrentValue == GameState.SHOP)
                 {
                     gameManager.ChangeGameState(GameState.PAUSE);
                 }
@@ -71,14 +74,7 @@ public class PlayerMover : BasePlayerComponent
                 else if (gameManager.CurrentGameState.CurrentValue == GameState.PAUSE)
                 {
                     // ポーズする前のゲームステートに戻す
-                    if (gameManager.PrevGameState == GameState.BATTLE)
-                    {
-                        gameManager.ChangeGameState(GameState.BATTLE);
-                    }
-                    else if (gameManager.PrevGameState == GameState.BUILD)
-                    {
-                        gameManager.ChangeGameState(GameState.BUILD);
-                    }
+                    gameManager.ChangeGameState(gameManager.PrevGameState);
                 }
             })
             .AddTo(this);
