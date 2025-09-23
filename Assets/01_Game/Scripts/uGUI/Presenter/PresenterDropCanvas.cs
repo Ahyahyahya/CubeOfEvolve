@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.WSA;
 
 namespace Assets.IGC2025.Scripts.Presenter
 {
@@ -21,6 +22,7 @@ namespace Assets.IGC2025.Scripts.Presenter
 
         [Header("Views")]
         [SerializeField] private ViewDropCanvas _dropView;
+        [SerializeField] private ViewAutoSelectToast _toast;
 
         [Header("Views_Hovered")]
         [SerializeField] private TextMeshProUGUI _infoText;
@@ -99,7 +101,12 @@ namespace Assets.IGC2025.Scripts.Presenter
 
             _dropView.DisplayModulesByIdOrRandom(displayIds, candidatePool, _moduleDataStore);
 
+            // スキップの場合はここまで
+            if (!_dropView.DropChoseEnabled.CurrentValue) return;
+
+            // 参照取得
             var canvasCtrl = _dropView.GetComponent<CanvasCtrl>();
+            // 画面表示
             if (canvasCtrl != null) canvasCtrl.OnOpenCanvas();
 
             // 開アニメ開始
@@ -124,7 +131,24 @@ namespace Assets.IGC2025.Scripts.Presenter
             if (selectedModuleId != -1 && _runtimeModuleManager != null)
                 _runtimeModuleManager.LevelUpModule(selectedModuleId);
 
-            // ★ 追加：閉アニメ → 閉じる
+            // スキップの場合はここまで
+            if (!_dropView.DropChoseEnabled.CurrentValue)
+            {
+                if (_moduleDataStore != null)
+                {
+                    var master = _moduleDataStore?.FindWithId(selectedModuleId);
+                    if (master != null)
+                    {
+                        var name = master.ViewName;
+                        var icon = master.MainSprite;
+                        int lvint = (master.Level + 1);
+                        var lv = lvint.ToString();
+                        _toast?.Show(name, lv, icon);
+                    }
+                }
+            }
+
+            // 閉アニメ開始
             await _dropView.PlayCloseAsync();
 
             var canvasCtrl = _dropView.gameObject.GetComponent<CanvasCtrl>();

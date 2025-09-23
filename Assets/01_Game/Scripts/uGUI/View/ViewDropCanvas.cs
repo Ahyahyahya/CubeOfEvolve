@@ -98,6 +98,8 @@ namespace Assets.IGC2025.Scripts.View
             // 自動
             if (!isDropChoseEnabled.Value)
             {
+                KillTweens();
+                InitCanvasClosed();
                 var randomPool = candidatePool.ToList();
                 ShuffleInPlace(randomPool);
 
@@ -198,7 +200,10 @@ namespace Assets.IGC2025.Scripts.View
         // -----PrivateMethod
         // Build Timeline
 
-        /// <summary>開アニメの全体タイムラインを構築。</summary>
+        /// <summary>
+        /// 開アニメの全体タイムラインを構築。
+        /// </summary>
+        /// <returns></returns>        
         private Sequence BuildOpenSequence()
         {
             var seq = DOTween.Sequence();
@@ -211,8 +216,6 @@ namespace Assets.IGC2025.Scripts.View
             if (_background)
             {
                 block.Join(_background.DOScaleY(_bgOvershootY, _bgOpenDuration).SetEase(Ease.OutBack));
-                //if (_bgSettleDuration > 0f)
-                //    block.Append(_background.DOScaleY(1.5f, _bgSettleDuration).SetEase(Ease.OutCubic));
             }
             if (_banner)
             {
@@ -237,8 +240,6 @@ namespace Assets.IGC2025.Scripts.View
             if (_background)
             {
                 close.Join(_background.DOScaleY(0f, _closeDuration).SetEase(Ease.OutBack));
-                //if (_bgSettleDuration > 0f)
-                //    block.Append(_background.DOScaleY(1.5f, _bgSettleDuration).SetEase(Ease.OutCubic));
             }
 
             if (_banner)
