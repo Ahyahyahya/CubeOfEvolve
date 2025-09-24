@@ -12,9 +12,15 @@ public class ItemMoveAnimation : MonoBehaviour
 
     [SerializeField, Tooltip("吸われるまでの待機時間")] private float _delaySecond;
     [SerializeField, Tooltip("移動速度")] private float _moveSpeed;
+
+    [Header("回収")]
+    [SerializeField, Tooltip("自動回収")] private bool _isAutoCollection = false;
     [SerializeField, Tooltip("回収距離")] private float _collectionRange;
     [SerializeField, Tooltip("Collider")] private Collider _collider;
     [SerializeField, Tooltip("RigidBody")] private Rigidbody _rb;
+
+    // ---------------------------- Field
+    Vector3 _saveVelocity;
 
     // ---------------------------- UnityMessage
     private void Awake()
@@ -27,6 +33,24 @@ public class ItemMoveAnimation : MonoBehaviour
 
         // Emissionの色を変更
         mat.SetColor("_EmissionColor", _color);
+
+
+        GameManager.Instance.CurrentGameState
+            .Subscribe(value =>
+            {
+                if (value == Assets.IGC2025.Scripts.GameManagers.GameState.BATTLE)
+                {
+                    _rb.isKinematic = false;
+                    _rb.linearVelocity = _saveVelocity;
+                }
+                else
+                {
+                    _saveVelocity = _rb.linearVelocity;
+                    _rb.isKinematic = true;
+                    _rb.linearVelocity = Vector3.zero;
+                }
+            })
+            .AddTo(gameObject);
     }
 
     private async void OnTriggerEnter(Collider other)
@@ -43,13 +67,10 @@ public class ItemMoveAnimation : MonoBehaviour
         await UniTask.Delay(TimeSpan.FromSeconds(_delaySecond), cancellationToken: destroyCancellationToken, delayType: DelayType.DeltaTime)
          .SuppressCancellationThrow();
 
-
-        this.UpdateAsObservable()
-            .Subscribe(_ =>
-            {
-                var dis = Vector3.Distance(transform.position, PlayerMonitoring.Instance.PlayerObj.transform.position);
-
-                if (dis <= _collectionRange)
+        if (_isAutoCollection)
+        {
+            this.UpdateAsObservable()
+                .Subscribe(_ =>
                 {
                     if (GameManager.Instance.CurrentGameState.CurrentValue != Assets.IGC2025.Scripts.GameManagers.GameState.BATTLE)
                     {
@@ -59,9 +80,31 @@ public class ItemMoveAnimation : MonoBehaviour
 
                     // プレイヤーに吸い込まれる処理
                     SuctionProcess();
-                }
-            })
-            .AddTo(this);
+                })
+                .AddTo(this);
+        }
+        else
+        {
+
+            this.UpdateAsObservable()
+                .Subscribe(_ =>
+                {
+                    var dis = Vector3.Distance(transform.position, PlayerMonitoring.Instance.PlayerObj.transform.position);
+
+                    if (dis <= _collectionRange)
+                    {
+                        if (GameManager.Instance.CurrentGameState.CurrentValue != Assets.IGC2025.Scripts.GameManagers.GameState.BATTLE)
+                        {
+                            _rb.linearVelocity = Vector3.zero;
+                            return;
+                        }
+
+                        // プレイヤーに吸い込まれる処理
+                        SuctionProcess();
+                    }
+                })
+                .AddTo(this);
+        }
     }
 
     // ---------------------------- PrivateMethod
