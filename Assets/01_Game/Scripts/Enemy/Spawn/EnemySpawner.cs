@@ -1,6 +1,5 @@
 using App.GameSystem.Modules;
 using Assets.IGC2025.Scripts.GameManagers;
-using Game.Utils;
 using ObservableCollections;
 using R3;
 using System.Collections;
@@ -9,16 +8,36 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
+    // ---------- Singleton
+    public static EnemySpawner Instance;
+
     // ---------------------------- SerializeField
     [SerializeField] private List<SpawnWaveData> _waves;
     [SerializeField] private float _playerDistance = 10f;
+    [SerializeField] private int _maxEnemyCount;
     [SerializeField] private GameObject _spawnEffect;
 
     // ---------------------------- Field
     private GameObject _target;
     private float _currentSpawnRate = 1f;
+    private GameObject _enemyInCurrentFrame;
+
+    // ---------------------------- ReactiveProperty
+    // 現在の敵リスト
+    public ReadOnlyReactiveProperty<List<GameObject>> EnemyCountList => _enemyCountList;
+    private ReactiveProperty<List<GameObject>> _enemyCountList = new(new());
 
     // ---------------------------- UnityMessage
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance.gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -40,6 +59,12 @@ public class EnemySpawner : MonoBehaviour
                 }
             })
             .AddTo(this);
+
+        //_enemyCountList.Subscribe(list =>
+        //{
+        //    Debug.Log($"敵の総数：{list.Count}");
+        //})
+        //.AddTo(this);
     }
 
     // ---------------------------- PrivateMethod
@@ -103,6 +128,7 @@ public class EnemySpawner : MonoBehaviour
             {
                 Spawn(wave.enemyList[Random.Range(0, wave.enemyList.Count)]);
             }
+            _enemyInCurrentFrame = null;
         }
         // ループ
         else if (wave.patternType == SpawnWaveData.SpawnPatternType.Loop)
@@ -118,9 +144,21 @@ public class EnemySpawner : MonoBehaviour
                     // 出現タイミングに達したか
                     if (loopElapsed >= nextSpawnTime)
                     {
-                        for (int i = 0; i < wave.spawnCount * _currentSpawnRate; i++)
+                        if (_maxEnemyCount > _enemyCountList.Value.Count)
                         {
-                            Spawn(wave.enemyList[Random.Range(0, wave.enemyList.Count)]);
+                            for (int i = 0; i < wave.spawnCount * _currentSpawnRate; i++)
+                            {
+                                Spawn(wave.enemyList[Random.Range(0, wave.enemyList.Count)]);
+
+                                if (_enemyInCurrentFrame != null)
+                                {
+                                    List<GameObject> list = _enemyCountList.Value;
+                                    list.Add(_enemyInCurrentFrame);
+                                    _enemyCountList.Value = new List<GameObject>(list);
+                                }
+
+                                _enemyInCurrentFrame = null;
+                            }
                         }
 
                         nextSpawnTime += wave.interval;
@@ -155,12 +193,31 @@ public class EnemySpawner : MonoBehaviour
         var enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
 
         // 生成後に敵の初期化メソッドを呼び出す（EnemyStatusコンポーネントがあれば）
-        enemy.GetComponent<EnemyStatus>()?.EnemySpawn();
+        if (enemy.TryGetComponent<EnemyStatus>(out EnemyStatus enemyStatus))
+        {
+            enemyStatus.EnemySpawn();
+            _enemyInCurrentFrame = enemy;
+        }
 
         if (_spawnEffect != null)
         {
             var effect = Instantiate(_spawnEffect, enemy.transform.position, Quaternion.identity);
             effect.AddComponent<StopEffect>();
+        }
+    }
+
+    // ---------------------------- PublicMethod
+    /// <summary>
+    /// 敵の総数から指定の敵を減らす
+    /// </summary>
+    /// <param name="gameObject"></param>
+    public void UpdateEnemyCount(GameObject gameObject)
+    {
+        if (_enemyCountList.Value.Contains(gameObject))
+        {
+            List<GameObject> list = _enemyCountList.Value;
+            list.Remove(gameObject);
+            _enemyCountList.Value = new List<GameObject>(list);
         }
     }
 }
