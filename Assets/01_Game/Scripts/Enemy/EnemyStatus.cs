@@ -59,6 +59,8 @@ public class EnemyStatus : MonoBehaviour, IDamageble
                 var effect = Instantiate(_effect, transform.position, Quaternion.identity);
                 effect.AddComponent<StopEffect>();
 
+                EnemySpawner.Instance.UpdateEnemyCount(gameObject);
+
                 Destroy(gameObject);
             })
             .AddTo(this);
