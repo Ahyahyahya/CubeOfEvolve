@@ -141,7 +141,7 @@ namespace Assets.IGC2025.Scripts.Presenter
                     {
                         var name = master.ViewName;
                         var icon = master.MainSprite;
-                        int lvint = (master.Level + 1);
+                        int lvint = (_runtimeModuleManager.GetRuntimeModuleData(selectedModuleId).CurrentLevelValue);
                         var lv = lvint.ToString();
                         _toast?.Show(name, lv, icon);
                     }
