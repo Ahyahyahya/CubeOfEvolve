@@ -1008,7 +1008,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _data: {fileID: 11400000, guid: 8d0d3f7bd112c19498f88d2989b34c75, type: 2}
   _fireSEName: Fire
-  _rotationSpeed: 120
+  _rotationSpeed: 140
   _isHorizontalAxisTracking: 1
   _horizontalModel: {fileID: 3152658309307378843}
   _isVerticalAxisTracking: 1
