@@ -20,7 +20,8 @@ public class ItemMoveAnimation : MonoBehaviour
     [SerializeField, Tooltip("RigidBody")] private Rigidbody _rb;
 
     // ---------------------------- Field
-    Vector3 _saveVelocity;
+    private Vector3 _saveVelocity;
+    private bool _isTouchGround;
 
     // ---------------------------- UnityMessage
     private void Awake()
@@ -46,8 +47,8 @@ public class ItemMoveAnimation : MonoBehaviour
                 else
                 {
                     _saveVelocity = _rb.linearVelocity;
-                    _rb.isKinematic = true;
                     _rb.linearVelocity = Vector3.zero;
+                    _rb.isKinematic = true;
                 }
             })
             .AddTo(gameObject);
@@ -55,12 +56,15 @@ public class ItemMoveAnimation : MonoBehaviour
 
     private async void OnTriggerEnter(Collider other)
     {
+        if (_isTouchGround) return;
         if (!other.CompareTag("Ground")) return;
+
+        _isTouchGround = true;
 
         if (_rb != null)
         {
-            _rb.useGravity = false;
             _rb.linearVelocity = Vector3.zero;
+            _rb.useGravity = false;
         }
 
         // ƒLƒƒƒ“ƒZƒ‹ˆ—‚ð‘‚­‚Æ‚±‚ë—v‘Š’k
@@ -72,6 +76,11 @@ public class ItemMoveAnimation : MonoBehaviour
             this.UpdateAsObservable()
                 .Subscribe(_ =>
                 {
+                    if (_rb.isKinematic)
+                    {
+                        return;
+                    }
+
                     if (GameManager.Instance.CurrentGameState.CurrentValue != Assets.IGC2025.Scripts.GameManagers.GameState.BATTLE)
                     {
                         _rb.linearVelocity = Vector3.zero;
@@ -89,6 +98,11 @@ public class ItemMoveAnimation : MonoBehaviour
             this.UpdateAsObservable()
                 .Subscribe(_ =>
                 {
+                    if (_rb.isKinematic)
+                    {
+                        return;
+                    }
+
                     var dis = Vector3.Distance(transform.position, PlayerMonitoring.Instance.PlayerObj.transform.position);
 
                     if (dis <= _collectionRange)
