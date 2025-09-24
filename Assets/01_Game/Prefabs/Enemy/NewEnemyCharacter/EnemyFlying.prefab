@@ -82,8 +82,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   _minDistance: 10
-  _minFlyingHeight: 5
-  _maxFlyingHeight: 8
+  _minFlyingHeight: 4
+  _maxFlyingHeight: 6
   _flyingPower: 0.8
   _layerMask:
     serializedVersion: 2
