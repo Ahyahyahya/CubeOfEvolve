@@ -73,10 +73,10 @@ MonoBehaviour:
     value: 100
   _maxHp:
     value: 100
-  _hpChangeValue: 10
+  _hpChangeValue: 20
   _invincibleTime: 0.1
   _moveSpeed:
-    value: 5
+    value: 6
   _rotateSpeed:
     value: 180
   _level:
@@ -89,7 +89,7 @@ MonoBehaviour:
   _AddRequireExpAmountRate: 0
   _cubeCount:
     value: 1
-  _addCubeCount: 3
+  _addCubeCount: 2
   _maxCubeCount:
     value: 1
   _money:
@@ -361,18 +361,6 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: PlayerInputer, Assembly-CSharp
         m_MethodName: OnPause
         m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: AT.uGUI.CanvasCtrl, Assembly-CSharp
-        m_MethodName: OnSwitchCanvas
-        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -758,9 +746,9 @@ MonoBehaviour:
       Rotation:
         value:
           x: 0.123776786
-          y: -0.000000001898103
-          z: -0.1472815
-          w: 0.98131925
+          y: -0.0000000018981032
+          z: -0.14728148
+          w: 0.9813193
     m_MetaData:
     - Mode: 2
       Tension: 0.5
@@ -988,8 +976,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5400399086143728076}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.15212333, y: -0.000000043202654, z: 0.000000006649522, w: 0.98836154}
-  m_LocalPosition: {x: 0, y: 3.0070581, z: -9.537169}
+  m_LocalRotation: {x: -0.000000013299051, y: -0.98836154, z: 0.1521234, w: -0.00000008640531}
+  m_LocalPosition: {x: 0, y: 3.0070581, z: 9.537169}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1468,8 +1456,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7710454181938598944}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.19980723, y: -0.31967017, z: 0.06915312, w: 0.92363733}
-  m_LocalPosition: {x: 1.5, y: 1.6014116, z: -1.9074339}
+  m_LocalRotation: {x: -0.069153115, y: -0.92363733, z: 0.19980717, w: -0.31967017}
+  m_LocalPosition: {x: -1.5, y: 1.6014116, z: 1.9074339}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
