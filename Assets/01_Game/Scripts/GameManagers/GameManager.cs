@@ -87,7 +87,7 @@ public class GameManager : MonoBehaviour
     /// <returns></returns>
     private async UniTask InitializeGameAsync(CancellationToken ct)
     {
-        Debug.Log("[GameManager] 初期化処理中...");
+        // Debug.Log("[GameManager] 初期化処理中...");
         await UniTask.DelayFrame(1, cancellationToken: ct);
 
         _timeManager = GetComponent<TimeManager>();
@@ -98,7 +98,7 @@ public class GameManager : MonoBehaviour
         _guideManager = GuideManager.Instance;
 
         ChangeGameState(GameState.TITLE);
-        Debug.Log("[GameManager] 初期化完了！");
+        // Debug.Log("[GameManager] 初期化完了！");
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour
     /// <returns></returns>
     private async UniTask OnGameStateChanged(GameState newState, CancellationToken token)
     {
-        Debug.Log($"[GameManager] State Changed: {_prevGameState} → {newState}");
+        // Debug.Log($"[GameManager] State Changed: {_prevGameState} → {newState}");
 
         switch (newState)
         {
@@ -216,12 +216,12 @@ public class GameManager : MonoBehaviour
 
         _timeManager.ResetTimer();
         // ステータス・スコア・一時オブジェクト初期化など
-        Debug.Log("[GameManager] プレイセッションを初期化");
+        // Debug.Log("[GameManager] プレイセッションを初期化");
     }
 
     private async UniTask ResetAllAsync(CancellationToken token)
     {
-        Debug.Log("[GameManager] 完全リセットを実行中...");
+        // Debug.Log("[GameManager] 完全リセットを実行中...");
         // TODO: セーブデータ初期化処理をここに記述（SaveManager.ClearAll() など）
         await UniTask.Delay(100, cancellationToken: token);
         await InitializeGameAsync(token);
