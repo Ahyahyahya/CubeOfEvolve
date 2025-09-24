@@ -6,11 +6,14 @@ public class StopEffect : MonoBehaviour
 {
     // ---------------------------- Field
     private ParticleSystem _particleSystem;
+    private Vector3 _startScale;
 
     // ---------------------------- UnityMessage
     private void Start()
     {
         _particleSystem = GetComponent<ParticleSystem>();
+
+        _startScale = gameObject.transform.localScale;
 
         GameManager.Instance.CurrentGameState
             .Subscribe(value =>
@@ -18,12 +21,12 @@ public class StopEffect : MonoBehaviour
                 if (value == GameState.BATTLE || value == GameState.GAMECLEAR)
                 {
                     _particleSystem.Play();
-                    gameObject.SetActive(true);
+                    gameObject.transform.localScale = _startScale;
                 }
                 else
                 {
                     _particleSystem.Pause();
-                    gameObject.SetActive(false);
+                    gameObject.transform.localScale = Vector3.zero;
                 }
             })
             .AddTo(_particleSystem);

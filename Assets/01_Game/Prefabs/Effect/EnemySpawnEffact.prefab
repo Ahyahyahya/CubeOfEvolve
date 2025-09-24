@@ -14728,6 +14728,7 @@ GameObject:
   - component: {fileID: 1979915793625176148}
   - component: {fileID: 5911206648629905745}
   - component: {fileID: 1019447938293388183}
+  - component: {fileID: 353975473237979924}
   m_Layer: 0
   m_Name: EnemySpawnEffact
   m_TagString: Untagged
@@ -19618,3 +19619,15 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &353975473237979924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7761031033666763820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34afde3f1af2134d8f230911d5d5ebb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
