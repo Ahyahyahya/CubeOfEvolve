@@ -4,16 +4,27 @@
 
 using UnityEngine;
 using UnityEngine.UI;
+using R3;
+using System;
+using Assets.IGC2025.Scripts.View;
 
 namespace Assets.AT
 {
-    /// <summary>
-    /// Custom switch component used in the kit. You can think of it as an animated toggle.
-    /// </summary>
     [RequireComponent(typeof(Button))]
     [RequireComponent(typeof(Animator))]
     public class Switch : MonoBehaviour
     {
+        public enum SourceType
+        {
+            GuideEnabled,       // GuideManager.Instance.GuideEnabled
+            DropChoseEnabled    // ViewDropCanvas.DropChoseEnabled
+        }
+
+        [Header("Reactive Source")]
+        [SerializeField] private SourceType _source = SourceType.GuideEnabled;
+        [SerializeField, Tooltip("Source=DropChoseEnabled のときに参照（未指定なら FindObjectOfType で探索）")]
+        private ViewDropCanvas _viewDropCanvas;
+
         private Button button;
         private Animator animator;
 
@@ -25,6 +36,8 @@ namespace Assets.AT
 
         private bool switchEnabled;
 
+        private readonly CompositeDisposable _disposables = new();
+
         private void Awake()
         {
             button = GetComponent<Button>();
@@ -34,39 +47,87 @@ namespace Assets.AT
             bgDisabledImage = transform.GetChild(0).GetChild(1).GetComponent<Image>();
             handleEnabledImage = transform.GetChild(1).GetChild(0).GetComponent<Image>();
             handleDisabledImage = transform.GetChild(1).GetChild(1).GetComponent<Image>();
-
-            //switchEnabled = true;
         }
 
         private void Start()
         {
-            switchEnabled = GuideManager.Instance.GuideEnabled.CurrentValue;
+            // 初期値の反映（SubscribeはOnEnableで張る）
+            switch (_source)
+            {
+                case SourceType.GuideEnabled:
+                    if (GuideManager.Instance != null && GuideManager.Instance.GuideEnabled != null)
+                        switchEnabled = GuideManager.Instance.GuideEnabled.CurrentValue;
+                    break;
+
+                case SourceType.DropChoseEnabled:
+                    var vdc = ResolveViewDropCanvas();
+                    if (vdc != null && vdc.DropChoseEnabled != null)
+                        switchEnabled = vdc.DropChoseEnabled.CurrentValue;
+                    break;
+            }
             UpdateObjects();
         }
 
         private void OnEnable()
         {
-            button.onClick.AddListener(Toggle);
+            // クリックの自己反転は行わない（見た目は購読で同期）
+            // → インスペクタのButton.onClickに GuideManager/ ViewDropCanvas の既存関数を割当てて使う
+
+            // 購読開始
+            _disposables.Clear();
+            switch (_source)
+            {
+                case SourceType.GuideEnabled:
+                    if (GuideManager.Instance == null || GuideManager.Instance.GuideEnabled == null)
+                    {
+                        Debug.LogWarning("[Switch] GuideManager が見つからないため購読できません。");
+                        return;
+                    }
+                    GuideManager.Instance.GuideEnabled
+                        .Subscribe(v =>
+                        {
+                            switchEnabled = v;
+                            UpdateObjects();
+                        })
+                        .AddTo(_disposables);
+                    break;
+
+                case SourceType.DropChoseEnabled:
+                    var vdc = ResolveViewDropCanvas();
+                    if (vdc == null || vdc.DropChoseEnabled == null)
+                    {
+                        Debug.LogWarning("[Switch] ViewDropCanvas が見つからないため購読できません。");
+                        return;
+                    }
+                    vdc.DropChoseEnabled
+                        .Subscribe(v =>
+                        {
+                            switchEnabled = v;
+                            UpdateObjects();
+                        })
+                        .AddTo(_disposables);
+                    break;
+            }
         }
 
         private void OnDisable()
         {
-            button.onClick.RemoveListener(Toggle);
+            _disposables.Dispose(); // 購読解除
         }
 
+        // （レガシー互換）外部から見た目だけ切り替えたい時用に残すが、通常は使わない。
         public void Toggle()
         {
             switchEnabled = !switchEnabled;
             UpdateObjects();
         }
 
-        public bool IsToggled()
-        {
-            return switchEnabled;
-        }
+        public bool IsToggled() => switchEnabled;
 
         private void UpdateObjects()
         {
+            if (bgDisabledImage == null) return;
+
             if (switchEnabled)
             {
                 bgDisabledImage.gameObject.SetActive(false);
@@ -81,7 +142,15 @@ namespace Assets.AT
                 handleEnabledImage.gameObject.SetActive(false);
                 handleDisabledImage.gameObject.SetActive(true);
             }
-            animator.SetTrigger(switchEnabled ? "Enable" : "Disable");
+            if (animator != null)
+                animator.SetTrigger(switchEnabled ? "Enable" : "Disable");
+        }
+
+        private ViewDropCanvas ResolveViewDropCanvas()
+        {
+            if (_viewDropCanvas != null) return _viewDropCanvas;
+            _viewDropCanvas = FindObjectOfType<ViewDropCanvas>();
+            return _viewDropCanvas;
         }
     }
 }

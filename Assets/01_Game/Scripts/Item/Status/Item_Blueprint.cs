@@ -11,6 +11,7 @@ public class Item_Blueprint : ItemBase
         // ガイド表示（設計図アイテムを初入手時）
         if (GuideManager.Instance.GuideEnabled.CurrentValue && !GuideManager.Instance.HasShown("Blueprint"))
         {
+            GameManager.Instance.ChangeGameState(Assets.IGC2025.Scripts.GameManagers.GameState.PAUSE);
             GuideManager.Instance.TryShowGuide("Blueprint");
         }
 
