@@ -57,9 +57,49 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aced246db6f113f409917e73972c5007, type: 3}
+--- !u!212 &152147244515074815 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 3918098829751906853, guid: aced246db6f113f409917e73972c5007, type: 3}
+  m_PrefabInstance: {fileID: 3765971621821305050}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &962920454805894200 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4116167128719418594, guid: aced246db6f113f409917e73972c5007, type: 3}
+  m_PrefabInstance: {fileID: 3765971621821305050}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &1156255991323589491 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 2614537006165666729, guid: aced246db6f113f409917e73972c5007, type: 3}
+  m_PrefabInstance: {fileID: 3765971621821305050}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &5147723913132032729 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 8300988007450186243, guid: aced246db6f113f409917e73972c5007, type: 3}
+  m_PrefabInstance: {fileID: 3765971621821305050}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6228375230121254902 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7074250636487053100, guid: aced246db6f113f409917e73972c5007, type: 3}
+  m_PrefabInstance: {fileID: 3765971621821305050}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &7515027135883373131 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 6632067641322486417, guid: aced246db6f113f409917e73972c5007, type: 3}
+  m_PrefabInstance: {fileID: 3765971621821305050}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &7577197159314961975 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6729775971157501677, guid: aced246db6f113f409917e73972c5007, type: 3}
+  m_PrefabInstance: {fileID: 3765971621821305050}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &8500840309652415960 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4736210126941926658, guid: aced246db6f113f409917e73972c5007, type: 3}
+  m_PrefabInstance: {fileID: 3765971621821305050}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &8897211735799675187 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 5708969844974217705, guid: aced246db6f113f409917e73972c5007, type: 3}
   m_PrefabInstance: {fileID: 3765971621821305050}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4759360394579866861
@@ -74,6 +114,42 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1568908392873123305, guid: edd9654859e99b24cbb905f9672792b6, type: 3}
+      propertyPath: _renderer.Array.size
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1568908392873123305, guid: edd9654859e99b24cbb905f9672792b6, type: 3}
+      propertyPath: '_renderer.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8500840309652415960}
+    - target: {fileID: 1568908392873123305, guid: edd9654859e99b24cbb905f9672792b6, type: 3}
+      propertyPath: '_renderer.Array.data[1]'
+      value: 
+      objectReference: {fileID: 6228375230121254902}
+    - target: {fileID: 1568908392873123305, guid: edd9654859e99b24cbb905f9672792b6, type: 3}
+      propertyPath: '_renderer.Array.data[2]'
+      value: 
+      objectReference: {fileID: 5147723913132032729}
+    - target: {fileID: 1568908392873123305, guid: edd9654859e99b24cbb905f9672792b6, type: 3}
+      propertyPath: '_renderer.Array.data[3]'
+      value: 
+      objectReference: {fileID: 1156255991323589491}
+    - target: {fileID: 1568908392873123305, guid: edd9654859e99b24cbb905f9672792b6, type: 3}
+      propertyPath: '_renderer.Array.data[4]'
+      value: 
+      objectReference: {fileID: 7515027135883373131}
+    - target: {fileID: 1568908392873123305, guid: edd9654859e99b24cbb905f9672792b6, type: 3}
+      propertyPath: '_renderer.Array.data[5]'
+      value: 
+      objectReference: {fileID: 7577197159314961975}
+    - target: {fileID: 1568908392873123305, guid: edd9654859e99b24cbb905f9672792b6, type: 3}
+      propertyPath: '_renderer.Array.data[6]'
+      value: 
+      objectReference: {fileID: 152147244515074815}
+    - target: {fileID: 1568908392873123305, guid: edd9654859e99b24cbb905f9672792b6, type: 3}
+      propertyPath: '_renderer.Array.data[7]'
+      value: 
+      objectReference: {fileID: 8897211735799675187}
     - target: {fileID: 3767028282445145877, guid: edd9654859e99b24cbb905f9672792b6, type: 3}
       propertyPath: m_Name
       value: Weapon_Drill
@@ -168,10 +244,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _data: {fileID: 11400000, guid: 21ec9be9e79cd734ba7c68ae0c95ba7c, type: 2}
   _fireSEName: Fire_Drill
-  _isHorizontalAxisTracking: 0
-  _isVerticalAxisTracking: 0
   _rotationSpeed: 90
-  _model: {fileID: 0}
+  _isHorizontalAxisTracking: 0
+  _horizontalModel: {fileID: 0}
+  _isVerticalAxisTracking: 0
+  _verticalModel: {fileID: 0}
   _layerSearch: {fileID: 3938932775136541202}
   _targetLayerMask:
     serializedVersion: 2
