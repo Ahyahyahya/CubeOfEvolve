@@ -133,6 +133,6 @@ public class ItemMoveAnimation : MonoBehaviour
         Vector3 moveForward = targetPos - transform.position;
 
         // 移動方向にスピードを掛ける
-        _rb.linearVelocity = _moveSpeed * Time.deltaTime * moveForward.normalized;
+        _rb.linearVelocity = _moveSpeed * moveForward.normalized;
     }
 }
